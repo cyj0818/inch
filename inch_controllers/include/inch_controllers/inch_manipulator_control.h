@@ -84,6 +84,12 @@ class InchControl : public inch::InchWorkbench
   double deadzone_Z_max;
   double deadzone_Z_min;
 
+  double bandpass_Y_wl;
+  double bandpass_Y_wh;
+  double bandpass_Z_wl;
+  double bandpass_Z_wh;
+
+
   double Link1_init_phi;
   double Link2_init_phi;
   Eigen::Vector2d phi_init;

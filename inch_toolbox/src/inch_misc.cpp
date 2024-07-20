@@ -150,6 +150,47 @@ Eigen::Vector2d InchMisc::CommandVelocityLimit(Eigen::Vector2d input_data_, doub
     }
   }
 
-
   return EE_command_vel_limit;
 }
+
+
+  double InchMisc::bandpass_filter(double input_data_, double time_loop_)
+{
+  bp_state_dot = bp_A * bp_state + bp_B * input_data_;
+  bp_state = bp_state + bp_state_dot * time_loop_;
+
+  for (int i = 0; i>2; i++)
+  {
+    bp_state[i] = debugger_saturation(bp_state[i]);
+  }
+
+  double output_data = bp_C.dot(bp_state);
+
+  return output_data;
+}
+
+
+void InchMisc::init_bandpass_filter(double wl, double wh)
+{
+
+  double w = sqrt(wl * wh);
+  
+  double Q = w / (wh - wl);
+
+
+  bp_A << - w/ Q, - w*w,
+              1,      0;
+
+  bp_B << 1, 0;
+
+  bp_C << w/ Q, 0;
+
+  bp_state << 0, 0;
+
+  bp_state_dot << 0, 0;
+
+  ROS_INFO("INIT BandPass Filter");
+}
+
+
+ 

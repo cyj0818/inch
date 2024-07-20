@@ -403,33 +403,6 @@ void InchControl::stop_Function()
 
 
 
-
-void InchControl::Experiment_0623_1Link()
-{
-
-}
-
-void InchControl::YujinInit()
-{
-
-}
-
-void InchControl::YujinWhile()
-{
-
-
-}
-
-void InchControl::HanryungInit()
-{
-
-}
-
-void InchControl::HanryungWhile()
-{
-
-}
-
 void InchControl::SeukInit()
 {
   inch_link1_PID = new InchMisc(); // link1에 pid 쓸거임
@@ -475,7 +448,6 @@ void InchControl::SeukWhile()
 
   // EE_cmd[0] = CKadmittanceControly(EE_ref[0], F_ext[0], time_loop); 
   // EE_cmd[1] = CKadmittanceControlz(EE_ref[1], F_ext[1], time_loop); 
-  EE_ref[1] = init_pose[1] + 0.05 *sin (2 *PI * 0.3 * time_real);
   
   if (std::isnan(F_ext[1])) EE_cmd[1] = EE_ref[1];
   else EE_cmd[1] = CKadmittanceControlz(EE_ref[1], F_ext[1], time_loop);
