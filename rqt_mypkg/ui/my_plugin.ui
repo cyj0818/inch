@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>673</width>
-    <height>478</height>
+    <width>662</width>
+    <height>477</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -289,7 +289,7 @@
            <item row="0" column="0">
             <widget class="QLabel" name="lbl_Yaw_4">
              <property name="text">
-              <string>deadzone min</string>
+              <string>Band Wl</string>
              </property>
             </widget>
            </item>
@@ -307,7 +307,7 @@
            <item row="0" column="0">
             <widget class="QLabel" name="lbl_Alti_4">
              <property name="text">
-              <string>deadzone max</string>
+              <string>Band Wh</string>
              </property>
             </widget>
            </item>
@@ -402,7 +402,7 @@
            <item row="0" column="0">
             <widget class="QLabel" name="lbl_Yaw_5">
              <property name="text">
-              <string>deadzone min</string>
+              <string>Band Wl</string>
              </property>
             </widget>
            </item>
@@ -420,7 +420,7 @@
            <item row="0" column="0">
             <widget class="QLabel" name="lbl_Alti_5">
              <property name="text">
-              <string>deadzone max</string>
+              <string>Band Wh</string>
              </property>
             </widget>
            </item>

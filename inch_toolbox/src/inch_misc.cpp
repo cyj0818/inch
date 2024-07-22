@@ -183,6 +183,7 @@ void InchMisc::init_bandpass_filter(double wl, double wh)
 
   bp_B << 1, 0;
 
+
   bp_C << w/ Q, 0;
 
   bp_state << 0, 0;

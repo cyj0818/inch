@@ -171,6 +171,9 @@ class InchControl : public inch::InchWorkbench
   ros::Publisher F_ext_raw_pub_;
   ros::Publisher q_ref_pub_;
   ros::Publisher q_meas_pub_;
+  ros::Publisher phi_meas_pub_;
+  ros::Publisher theta_cmd_pub_;
+  ros::Publisher tau_ext_pub_;
 
   /*****************************************************************************
   ** ROS Subscribers
@@ -219,8 +222,9 @@ class InchControl : public inch::InchWorkbench
 
   geometry_msgs::Vector3 q_ref_msg;  
   geometry_msgs::Vector3 q_meas_msg;  
-
-
+  geometry_msgs::Vector3 phi_meas_msg;  
+  geometry_msgs::Vector3 theta_cmd_msg; 
+  geometry_msgs::Vector3 tau_ext_msg; 
 
 
 };
