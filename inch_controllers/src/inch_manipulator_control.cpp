@@ -492,6 +492,9 @@ void InchControl::SeukWhile()
   // theta_cmd[0] += inch_link1_PID->PID_controller(q_des[0], inch_joint->q_meas[0], time_loop);
   // theta_cmd[1] += inch_link2_PID->PID_controller(q_des[1], inch_joint->q_meas[1], time_loop);
 
+  // // Rigid Manipulator
+  // theta_cmd = q_des; 
+
 
 /////////////////////////////////////////////////////////////////
   EE_meas = ForwardKinematics_2dof(inch_joint->q_meas);
