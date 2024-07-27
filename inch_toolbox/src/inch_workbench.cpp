@@ -117,7 +117,7 @@ double InchWorkbench::admittanceControlz(double ref, double f_ext, double time_l
   admit_z_state_dot = admit_z_A * admit_z_state + admit_z_B * f_ext;
   admit_z_state = admit_z_state + admit_z_state_dot * time_loop;
 
-  admit_z_state[1] = saturation(admit_z_state[1],0.1);
+  admit_z_state[1] = saturation(admit_z_state[1],0.15);
   z_cmd = ref - admit_z_state[1];
   
   return z_cmd;
@@ -157,7 +157,7 @@ double InchWorkbench::CKadmittanceControlz(double ref, double f_ext, double time
   CKadmit_z_state_dot = f_ext / CKadmit_damper_z - CKadmit_spring_z / CKadmit_damper_z * CKadmit_z_state;
   CKadmit_z_state = CKadmit_z_state + CKadmit_z_state_dot * time_loop;
 
-  CKadmit_z_state = saturation(CKadmit_z_state, 0.05);
+  CKadmit_z_state = saturation(CKadmit_z_state, 0.13);
 
   return ref - CKadmit_z_state;
 }

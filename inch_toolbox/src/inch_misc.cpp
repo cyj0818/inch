@@ -88,9 +88,10 @@ void InchMisc::init_PID_controller(double Kp_, double Ki_, double Kd_, double cu
 
 double InchMisc::Dead_Zone_filter(double input_data_, double dead_zone_max, double dead_zone_min)
 {
-  return (input_data_ < dead_zone_max && input_data_ > dead_zone_min) ? 0 : input_data_;
+  if (input_data_ > dead_zone_max) return input_data_ - dead_zone_max;
+  else if (input_data_ < dead_zone_min) return input_data_ - dead_zone_min;
+  else return 0;
 }
-
 
 double InchMisc::NumDiff(double input_data_, double time_loop_)
 {

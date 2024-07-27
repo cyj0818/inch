@@ -188,8 +188,8 @@ Eigen::Vector2d InchJoint::MPC_controller_2Link(Eigen::Vector2d ref_, double tim
 
 
   theta_MPC_i = theta_MPC;
-  // return theta_MPC + damping_coef * q_dot_meas - damping_coef * theta_MPC_dot;
-  return theta_MPC;
+  return theta_MPC + damping_coef * q_dot_meas - damping_coef * theta_MPC_dot;
+  // return theta_MPC;
 }
 
 

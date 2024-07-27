@@ -93,6 +93,7 @@ class InchControl : public inch::InchWorkbench
   double Link1_init_phi;
   double Link2_init_phi;
   Eigen::Vector2d phi_init;
+  Eigen::Vector2d tau_offset;
 
   std::string robot_name_;
 

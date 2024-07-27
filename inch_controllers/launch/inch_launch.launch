@@ -16,7 +16,7 @@
     <node name="inch_data_logging" pkg="data_logging" type="inch_data_logging" required="true" output="screen"> 
     </node>	  
 
-    <node pkg="rosbag" type="record" name="record" output="screen" args="-o /home/choiyujiin/Desktop/apisat_ws/src/inch_worm/data_logging/bag/ /inch/data_log" />
+    <node pkg="rosbag" type="record" name="record" output="screen" args="-o /home/choiyujiin/Desktop/apisat_ws/src/inch/data_logging/bag/ /inch/data_log" />
 	
 
 </launch>

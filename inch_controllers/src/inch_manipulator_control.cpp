@@ -156,10 +156,10 @@ bool InchControl::FextZ_callback(inch_controllers::FextZFilter::Request& req, in
   double Z_filter_cof = req.filter_COF;
 
   tanh_COF_Z = req.tanh_COF;
-  // deadzone_Z_max = req.deadzone_max;
-  // deadzone_Z_min = req.deadzone_min;
-  bandpass_Z_wh = req.deadzone_max;
-  bandpass_Z_wl = req.deadzone_min;
+  deadzone_Z_max = req.deadzone_max;
+  deadzone_Z_min = req.deadzone_min;
+  // bandpass_Z_wh = req.deadzone_max;
+  // bandpass_Z_wl = req.deadzone_min;
 
   inch_butterworth_F_ext_z->init_butterworth_2nd_filter(Z_filter_cof);
   inch_butterworth_F_ext_z->init_bandpass_filter(bandpass_Z_wl, bandpass_Z_wh);
@@ -170,6 +170,7 @@ bool InchControl::FextZ_callback(inch_controllers::FextZFilter::Request& req, in
 
 bool InchControl::admittance_callback(inch_controllers::admittance::Request& req, inch_controllers::admittance::Response& res)
 {
+  tau_offset = inch_joint->tau_phi;
   double y_d = req.y_d;
   double y_k = req.y_k;
   double z_d = req.z_d;
@@ -241,13 +242,18 @@ void InchControl::PublishData()
   F_ext_raw_pub_.publish(F_ext_raw_msg);
 
   //inch/q_ref
-  q_ref_msg.x = q_ref[0];
-  q_ref_msg.y = q_ref[1];
+  // q_ref_msg.x = q_ref[0];              
+  // q_ref_msg.y = q_ref[1];                
+  q_ref_msg.x = theta_cmd[0];       // When Rigid manipulator           
+  q_ref_msg.y = theta_cmd[1];                   
   q_ref_pub_.publish(q_ref_msg);
+  
 
   //inch/q_meas
-  q_meas_msg.x = inch_joint->q_meas[0];
-  q_meas_msg.y = inch_joint->q_meas[1];
+  q_meas_msg.x = inch_joint->q_meas[0];   //inch_joint->theta_meas[0]; when gimbaling, On!! asdfasdfasdf
+  q_meas_msg.y = inch_joint->q_meas[1];   //inch_joint->theta_meas[1]; when gimbaling, On!! asdfasdfasdf
+  // q_meas_msg.x = inch_joint->theta_meas[0];   //inch_joint->theta_meas[0]; when gimbaling, On!! asdfasdfasdf
+  // q_meas_msg.y = inch_joint->theta_meas[1]; 
   q_meas_pub_.publish(q_meas_msg);
 
   //inch/phi_meas
@@ -302,9 +308,9 @@ void InchControl::TimeCount()
 
 void InchControl::SolveInverseForwardKinematics()
 {
-  q_cmd = InverseKinematics_2dof(EE_cmd);
+  // q_cmd = InverseKinematics_2dof(EE_cmd);
 
-  EE_meas = ForwardKinematics_2dof(q_cmd);
+  // EE_meas = ForwardKinematics_2dof(q_cmd);
 
 }
 
@@ -359,21 +365,26 @@ void InchControl::inch_gimbal_EE_ref_callback(const geometry_msgs::Twist& msg)
 
 void InchControl::F_ext_processing()
 {
-  tau_ext = inch_joint->tau_phi - inch_joint->tau_MCG;
+  tau_ext = inch_joint->tau_phi - tau_offset;
   F_ext_raw = ForceEstimation(inch_joint->q_meas, tau_ext); // 필터링 전 F_ext
-  F_ext_raw[1] += 1;
 
-  F_ext_[0] = inch_butterworth_F_ext_y->butterworth_2nd_filter(F_ext_[0], time_loop);
-  F_ext_[1] = inch_butterworth_F_ext_z->butterworth_2nd_filter(F_ext_[1], time_loop);
 
-  F_ext_[0] = tanh_function(F_ext_raw[0], tanh_COF_Y);
-  F_ext_[1] = tanh_function(F_ext_raw[1], tanh_COF_Z);
+  F_ext_[0] = inch_butterworth_F_ext_y->butterworth_2nd_filter(F_ext_raw[0], time_loop);
+  F_ext_[1] = inch_butterworth_F_ext_z->butterworth_2nd_filter(F_ext_raw[1], time_loop);
 
-  // F_ext_[0] = Dead_Zone_filter(F_ext_[0], deadzone_Y_max, deadzone_Y_min);
-  // F_ext_[1] = Dead_Zone_filter(F_ext_[1], deadzone_Z_max, deadzone_Z_min);
+  F_ext_[0] = tanh_function(F_ext_[0], tanh_COF_Y);
+  F_ext_[1] = tanh_function(F_ext_[1], tanh_COF_Z);
+
+  F_ext_[0] = Dead_Zone_filter(F_ext_[0], deadzone_Y_max, deadzone_Y_min);
+  F_ext_[1] = Dead_Zone_filter(F_ext_[1], deadzone_Z_max, deadzone_Z_min);
+
+  // if (F_ext_[1] > deadzone_Z_max) F_ext_[1] = F_ext_[1] - deadzone_Z_max;
+  // else if (F_ext_[1] < deadzone_Z_max) F_ext_[1] = F_ext_[1] - deadzone_Z_max;
+  // else F_ext_[1] = 0;
+
   
-  F_ext_[0] = inch_butterworth_F_ext_y->bandpass_filter(F_ext_[0], time_loop);
-  F_ext_[1] = inch_butterworth_F_ext_z->bandpass_filter(F_ext_[1], time_loop);
+  // F_ext_[0] = inch_butterworth_F_ext_y->bandpass_filter(F_ext_[0], time_loop);
+  // F_ext_[1] = inch_butterworth_F_ext_z->bandpass_filter(F_ext_[1], time_loop);
 
   F_ext = F_ext_;
 }
@@ -408,7 +419,6 @@ void InchControl::init_pose_function()
     calibration_loop.sleep();
 
     inch_joint->phi_offset = phi_init - inch_joint->phi_meas;
-    
     calibration_loop.sleep();
     ros::spinOnce();
 
@@ -449,7 +459,7 @@ void InchControl::SeukInit()
 
   // init_pose << 0.16, 0.30;
 
-  init_pose << 0.18, 0.28;
+  init_pose << 0.14, 0.35;
   EE_ref = init_pose;
 
   // 초기값 튀는거 방지용 입니다.
@@ -474,14 +484,19 @@ void InchControl::SeukWhile()
 
 
   // For Admittance 
-  if (std::isnan(F_ext[0])) EE_cmd[0] = EE_ref[0];
-  else EE_cmd[0] = CKadmittanceControly(EE_ref[0], F_ext[0], time_loop);
+  // if (std::isnan(F_ext[0])) EE_cmd[0] = EE_ref[0];
+  // else EE_cmd[0] = CKadmittanceControly(EE_ref[0], F_ext[0], time_loop);
+  EE_cmd[0] = EE_ref[0];
   if (std::isnan(F_ext[1])) EE_cmd[1] = EE_ref[1];
-  else EE_cmd[1] = CKadmittanceControlz(EE_ref[1], F_ext[1], time_loop);    
+  else 
+  {
+    EE_cmd[1] = CKadmittanceControlz(EE_ref[1], F_ext[1], time_loop);    
+    ROS_INFO("EE_CMD %lf %lf!!", EE_cmd[0], EE_cmd[1]);
+  }
                 
   q_ref = InverseKinematics_2dof(EE_cmd);
-  q_des = CommandVelocityLimit(q_ref, 3, time_loop);
-
+  q_des = CommandVelocityLimit(q_ref, 5, time_loop);
+  // q_des = q_ref;
 
   // MPC + Integrator 
   theta_cmd = inch_joint->MPC_controller_2Link(q_des, time_loop);
@@ -492,13 +507,13 @@ void InchControl::SeukWhile()
   // theta_cmd[0] += inch_link1_PID->PID_controller(q_des[0], inch_joint->q_meas[0], time_loop);
   // theta_cmd[1] += inch_link2_PID->PID_controller(q_des[1], inch_joint->q_meas[1], time_loop);
 
-  // // Rigid Manipulator
+  // Rigid Manipulator
   // theta_cmd = q_des; 
 
 
 /////////////////////////////////////////////////////////////////
   EE_meas = ForwardKinematics_2dof(inch_joint->q_meas);
-
+  // EE_meas = ForwardKinematics_2dof(inch_joint->theta_meas); //when RIGID gimbaling, On!! asdfasdfasdf
 }
 
 
@@ -507,10 +522,7 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "InchControl");
   InchControl inch_ctrl_;
 
-//  inch_ctrl_.YujinInit();
-  //inch_ctrl_.HanryungInit();
   inch_ctrl_.SeukInit();
-
 
   ros::Rate loop_rate(200);
 
