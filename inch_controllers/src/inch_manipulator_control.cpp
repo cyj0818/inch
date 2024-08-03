@@ -182,21 +182,6 @@ bool InchControl::admittance_callback(inch_controllers::admittance::Request& req
 
   return true;
 }
-// bool InchControl::gimbal_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
-// {
-//   if (gimbal_Flag)
-//   {
-//     ROS_INFO("TF not gimbal mode");
-//     gimbal_Flag = false;
-//   }
-//   else
-//   {
-//     ROS_INFO("TF gimbaling");
-//     gimbal_Flag = true;
-//   }
-
-//   return true;
-// }
 
 
 void InchControl::PublishData()
@@ -457,9 +442,9 @@ void InchControl::SeukInit()
   init_CKAdmittancey(100000, 5);
   init_CKAdmittancez(100000, 5);
 
-  // init_pose << 0.16, 0.30;
-
-  init_pose << 0.14, 0.35;
+  init_pose << 0.16, 0.30;
+  // init_pose << 0.14, 0.35;
+  
   EE_ref = init_pose;
 
   // 초기값 튀는거 방지용 입니다.
@@ -487,12 +472,14 @@ void InchControl::SeukWhile()
   // if (std::isnan(F_ext[0])) EE_cmd[0] = EE_ref[0];
   // else EE_cmd[0] = CKadmittanceControly(EE_ref[0], F_ext[0], time_loop);
   EE_cmd[0] = EE_ref[0];
-  if (std::isnan(F_ext[1])) EE_cmd[1] = EE_ref[1];
-  else 
-  {
-    EE_cmd[1] = CKadmittanceControlz(EE_ref[1], F_ext[1], time_loop);    
-    ROS_INFO("EE_CMD %lf %lf!!", EE_cmd[0], EE_cmd[1]);
-  }
+  EE_cmd[1] = EE_ref[1];
+  
+  // if (std::isnan(F_ext[1])) EE_cmd[1] = EE_ref[1];
+  // else 
+  // {
+  //   EE_cmd[1] = CKadmittanceControlz(EE_ref[1], F_ext[1], time_loop);    
+  //   ROS_INFO("EE_CMD %lf %lf!!", EE_cmd[0], EE_cmd[1]);
+  // }
                 
   q_ref = InverseKinematics_2dof(EE_cmd);
   q_des = CommandVelocityLimit(q_ref, 5, time_loop);
